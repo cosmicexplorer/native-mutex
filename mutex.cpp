@@ -6,12 +6,14 @@ using namespace v8;
 
 Persistent<Function> Mutex::constructor;
 
-Mutex::Mutex(double value) : value_(value) {}
+Mutex::Mutex() : mut() {
+}
 
-Mutex::~Mutex() {}
+Mutex::~Mutex() {
+}
 
 void Mutex::Init(Handle<Object> exports) {
-  Isolate *isolate = Isolate::GetCurrent();
+  Isolate * isolate = Isolate::GetCurrent();
 
   /* isolate->ThrowException(
      Exception::TypeError(String::NewFromUtf8(isolate, "wrong type!"))); */
@@ -22,31 +24,21 @@ void Mutex::Init(Handle<Object> exports) {
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
   // Prototype
-  NODE_SET_PROTOTYPE_METHOD(tpl, "plusOne", PlusOne);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "tryLock", TryLock);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "lock", Lock);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "unlock", Unlock);
 
   constructor.Reset(isolate, tpl->GetFunction());
   exports->Set(String::NewFromUtf8(isolate, "Mutex"), tpl->GetFunction());
 }
 
-void Mutex::New(const FunctionCallbackInfo<Value> &args) {
-  Isolate *isolate = Isolate::GetCurrent();
+void Mutex::New(const FunctionCallbackInfo<Value> & args) {
+  Isolate * isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
 
   if (args.IsConstructCall()) {
     // Invoked as constructor: `new Mutex(...)`
-    /* double value = args[0]->IsUndefined() ? 0 : args[0]->NumberValue(); */
-    double value(2);
-    auto arg = args[0];
-    if (arg->IsUndefined()) {
-      value = -1;
-    } else if (arg->IsObject()) {
-      auto obj = Handle<Object>::Cast(arg);
-      auto result = obj->Get(String::NewFromUtf8(isolate, "type"));
-      if (result->IsNumber()) {
-        value = result->NumberValue();
-      }
-    }
-    Mutex *obj = new Mutex(value);
+    Mutex * obj = new Mutex();
     obj->Wrap(args.This());
     args.GetReturnValue().Set(args.This());
   } else {
@@ -58,26 +50,42 @@ void Mutex::New(const FunctionCallbackInfo<Value> &args) {
   }
 }
 
-void Mutex::PlusOne(const FunctionCallbackInfo<Value> &args) {
-  Isolate *isolate = Isolate::GetCurrent();
+void Mutex::TryLock(const FunctionCallbackInfo<Value> & args) {
+  Isolate * isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
+  Mutex * obj = ObjectWrap::Unwrap<Mutex>(args.Holder());
+  bool succeeded(obj->mut.try_lock());
+  args.GetReturnValue().Set(Boolean::New(isolate, succeeded));
+}
 
-  Mutex *obj = ObjectWrap::Unwrap<Mutex>(args.Holder());
-  obj->value_ += 1;
+void Mutex::Lock(const FunctionCallbackInfo<Value> & args) {
+  Isolate * isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+  Mutex * obj = ObjectWrap::Unwrap<Mutex>(args.Holder());
+  obj->mut.lock();
+  args.GetReturnValue().Set(Null(isolate));
+}
 
-  args.GetReturnValue().Set(Number::New(isolate, obj->value_));
+void Mutex::Unlock(const FunctionCallbackInfo<Value> & args) {
+  Isolate * isolate = Isolate::GetCurrent();
+  HandleScope scope(isolate);
+  Mutex * obj = ObjectWrap::Unwrap<Mutex>(args.Holder());
+  obj->mut.unlock();
+  args.GetReturnValue().Set(Null(isolate));
 }
 
 /* RecursiveMutex */
 
 Persistent<Function> RecursiveMutex::constructor;
 
-RecursiveMutex::RecursiveMutex(double value) : value_(value) {}
+RecursiveMutex::RecursiveMutex(double value) : value_(value) {
+}
 
-RecursiveMutex::~RecursiveMutex() {}
+RecursiveMutex::~RecursiveMutex() {
+}
 
 void RecursiveMutex::Init(Handle<Object> exports) {
-  Isolate *isolate = Isolate::GetCurrent();
+  Isolate * isolate = Isolate::GetCurrent();
 
   /* isolate->ThrowException(
      Exception::TypeError(String::NewFromUtf8(isolate, "wrong type!"))); */
@@ -95,8 +103,8 @@ void RecursiveMutex::Init(Handle<Object> exports) {
                tpl->GetFunction());
 }
 
-void RecursiveMutex::New(const FunctionCallbackInfo<Value> &args) {
-  Isolate *isolate = Isolate::GetCurrent();
+void RecursiveMutex::New(const FunctionCallbackInfo<Value> & args) {
+  Isolate * isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
 
   if (args.IsConstructCall()) {
@@ -113,7 +121,7 @@ void RecursiveMutex::New(const FunctionCallbackInfo<Value> &args) {
         value = result->NumberValue();
       }
     }
-    RecursiveMutex *obj = new RecursiveMutex(value);
+    RecursiveMutex * obj = new RecursiveMutex(value);
     obj->Wrap(args.This());
     args.GetReturnValue().Set(args.This());
   } else {
@@ -126,11 +134,11 @@ void RecursiveMutex::New(const FunctionCallbackInfo<Value> &args) {
   }
 }
 
-void RecursiveMutex::PlusOne(const FunctionCallbackInfo<Value> &args) {
-  Isolate *isolate = Isolate::GetCurrent();
+void RecursiveMutex::PlusOne(const FunctionCallbackInfo<Value> & args) {
+  Isolate * isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
 
-  RecursiveMutex *obj = ObjectWrap::Unwrap<RecursiveMutex>(args.Holder());
+  RecursiveMutex * obj = ObjectWrap::Unwrap<RecursiveMutex>(args.Holder());
   obj->value_ += 1;
 
   args.GetReturnValue().Set(Number::New(isolate, obj->value_));
@@ -140,12 +148,14 @@ void RecursiveMutex::PlusOne(const FunctionCallbackInfo<Value> &args) {
 
 Persistent<Function> TimeoutMutex::constructor;
 
-TimeoutMutex::TimeoutMutex(double value) : value_(value) {}
+TimeoutMutex::TimeoutMutex(double value) : value_(value) {
+}
 
-TimeoutMutex::~TimeoutMutex() {}
+TimeoutMutex::~TimeoutMutex() {
+}
 
 void TimeoutMutex::Init(Handle<Object> exports) {
-  Isolate *isolate = Isolate::GetCurrent();
+  Isolate * isolate = Isolate::GetCurrent();
 
   /* isolate->ThrowException(
      Exception::TypeError(String::NewFromUtf8(isolate, "wrong type!"))); */
@@ -163,8 +173,8 @@ void TimeoutMutex::Init(Handle<Object> exports) {
                tpl->GetFunction());
 }
 
-void TimeoutMutex::New(const FunctionCallbackInfo<Value> &args) {
-  Isolate *isolate = Isolate::GetCurrent();
+void TimeoutMutex::New(const FunctionCallbackInfo<Value> & args) {
+  Isolate * isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
 
   if (args.IsConstructCall()) {
@@ -181,7 +191,7 @@ void TimeoutMutex::New(const FunctionCallbackInfo<Value> &args) {
         value = result->NumberValue();
       }
     }
-    TimeoutMutex *obj = new TimeoutMutex(value);
+    TimeoutMutex * obj = new TimeoutMutex(value);
     obj->Wrap(args.This());
     args.GetReturnValue().Set(args.This());
   } else {
@@ -193,11 +203,11 @@ void TimeoutMutex::New(const FunctionCallbackInfo<Value> &args) {
   }
 }
 
-void TimeoutMutex::PlusOne(const FunctionCallbackInfo<Value> &args) {
-  Isolate *isolate = Isolate::GetCurrent();
+void TimeoutMutex::PlusOne(const FunctionCallbackInfo<Value> & args) {
+  Isolate * isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
 
-  TimeoutMutex *obj = ObjectWrap::Unwrap<TimeoutMutex>(args.Holder());
+  TimeoutMutex * obj = ObjectWrap::Unwrap<TimeoutMutex>(args.Holder());
   obj->value_ += 1;
 
   args.GetReturnValue().Set(Number::New(isolate, obj->value_));

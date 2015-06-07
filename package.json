@@ -1,0 +1,27 @@
+{
+  "name": "native-mutex",
+  "version": "0.0.0",
+  "description": "A node wrapper over C++11 std::mutex.",
+  "license": "GPL-3.0",
+  "author": "Danny McClanahan <danieldmcclanahan@gmail.com>",
+  "main": "build/Release/native-mutex.node",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cosmicexplorer/native-mutex.git"
+  },
+  "scripts": {
+    "prepublish": "make check",
+    "test": "make check"
+  },
+  "keywords": [
+    "mutex",
+    "lock",
+    "concurrency",
+    "safety"
+  ],
+  "devDependencies": {
+    "byline": "4.2.x",
+    "coffee-script": "1.9.x",
+    "node-gyp": "2.0.x"
+  }
+}
