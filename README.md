@@ -37,26 +37,39 @@ These are described as if they are C++ functions, with argument and return types
 
 - `Mutex(opts)` (constructor)
 
+
 If 'opts' is a javascript object, checks two properties: `recursive` and `timed`. Allows recursive locking if `recursive` is `true`, and timed locking if `timed` is `true`.
+
 
 - `void lock(void)`
 
+
 Locks the mutex. Throws TypeError if already locked and mutex is not recursive. This blocks the calling thread synchronously until it is locked, so try to avoid deadlocks!
+
 
 - `void unlock(void)`
 
+
 Unlocks the mutex. Throws TypeError if you don't have the lock.
+
+
 - `bool tryLock(void)`
+
 
 Attempts to lock the mutex. If succeeds, returns true. If fails (mutex is already locked by another thread), returns false immediately without locking.
 
+
 - `bool tryLockFor(int milliseconds)`
+
 
 Only available for timed mutexes. Attempts to lock the mutex within the given time span. Returns true on success, false on timeout. Throws TypeError if already locked and mutex is not recursive, or if the mutex isn't a timed mutex. This blocks the calling thread synchronously until it locks or times out.
 
+
 - `object doWithLock((optional) lockItForMe, callbackToRun)`
 
+
 Runs callback **synchronously**, unlocking mutex when done and returning the result of the callback. If lockItForMe is provided and is `false`, it assumes the mutex is already locked. Otherwise, the mutex is locked for you. When using this function, make sure you don't accidentally lock the mutex before running this without setting lockitForMe to false, or forget to lock the mutex and set lockitForMe to false (although this will throw an exception, so it's not that bad), because you will experience errors, and errors are bad.
+
 
 # HUH?
 
