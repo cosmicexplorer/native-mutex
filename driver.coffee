@@ -1,7 +1,7 @@
-PthreadMutex = require './build/Release/pthread-mutex'
+NativeMutex = require './build/Release/native-mutex'
 
 doStuff = ->
-  obj = new PthreadMutex.RecursiveMutex()
+  obj = new NativeMutex.RecursiveMutex()
   console.log obj.plusOne()
   console.log obj.plusOne()
 

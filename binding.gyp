@@ -1,8 +1,8 @@
 {
   "targets": [
     {
-      "target_name": "pthread-mutex",
-      "sources": [ "pthread-mutex.cpp",
+      "target_name": "native-mutex",
+      "sources": [ "native-mutex.cpp",
                    "mutex.cpp"],
       "conditions": [
         [

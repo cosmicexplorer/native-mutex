@@ -105,7 +105,7 @@ void RecursiveMutex::New(const FunctionCallbackInfo<Value> &args) {
     double value(2);
     auto arg = args[0];
     if (arg->IsUndefined()) {
-      value = -1;
+      value = -3;
     } else if (arg->IsObject()) {
       auto obj = Handle<Object>::Cast(arg);
       auto result = obj->Get(String::NewFromUtf8(isolate, "type"));
