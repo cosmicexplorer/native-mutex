@@ -17,7 +17,7 @@ lock.unlock(); // let others have fun
 
 # OPERATIONS
 
-The type of mutex is specified in a options object passed to the constructor, as detailed [below](#API). All mutexes support the `lock`, `tryLock`, and `unlock` operations, which work [just](http://www.cplusplus.com/reference/mutex/mutex/lock/) [like](http://www.cplusplus.com/reference/mutex/mutex/try_lock/) [C++](http://www.cplusplus.com/reference/mutex/mutex/unlock). Recursive mutexes support recursive locking (incredible, right) and timeout mutexes support the `tryLockFor` function, which works as detailed [here](http://www.cplusplus.com/reference/mutex/timed_mutex/try_lock_for/), except you pass in a number of milliseconds instead of a C++ std::whatever. All the mutexes are destroyed on garbage collection.
+The type of mutex is specified in a options object passed to the constructor, as detailed [below](#api). All mutexes support the `lock`, `tryLock`, and `unlock` operations, which work [just](http://www.cplusplus.com/reference/mutex/mutex/lock/) [like](http://www.cplusplus.com/reference/mutex/mutex/try_lock/) [C++](http://www.cplusplus.com/reference/mutex/mutex/unlock). Recursive mutexes support recursive locking (incredible, right) and timeout mutexes support the `tryLockFor` function, which works as detailed [here](http://www.cplusplus.com/reference/mutex/timed_mutex/try_lock_for/), except you pass in a number of milliseconds instead of a C++ std::whatever. All the mutexes are destroyed on garbage collection.
 
 In addition to these, there is a `doWithLock` operation that releases a lock when the function returns. Its use is described below:
 
