@@ -7,6 +7,8 @@ NPM_BIN := $(shell npm bin)
 COFFEE_BIN := $(NPM_BIN)/coffee
 GYP_BIN := $(NPM_BIN)/node-gyp
 
+SRC := $(wildcard *.cpp) $(wildcard *.hpp)
+
 CPP_OBJ := $(NPM_OBJ_DIR)/Release/native-mutex.node
 
 TEST_DRIVER := driver.coffee
@@ -20,11 +22,11 @@ all: $(CPP_OBJ)
 $(NPM_DIR):
 	npm install
 
-$(CPP_OBJ): $(NPM_DIR)
+$(CPP_OBJ): $(NPM_DIR) $(SRC)
 	$(GYP_BIN) configure
 	$(GYP_BIN) build
 
-check: $(TEST_DRIVER) $(TEST_CHECKER) all
+check: all
 	$(COFFEE_BIN) $(TEST_DRIVER) > $(TEST_OBJ)
 	$(COFFEE_BIN) $(TEST_CHECKER) < $(TEST_OBJ)
 

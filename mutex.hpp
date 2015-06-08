@@ -1,11 +1,6 @@
 #ifndef MUTEX_HPP
 #define MUTEX_HPP
 
-/* these three classes wrap the similarly-named mutex classes introduced in
-   c++11. why don't they inherit from each other? because v8 makes all
-   javascript-facing functions static (therefore non-inheritable), so there's
-   no real point except for aesthetics, and i don't do ui work. */
-
 /* std includes */
 #include <mutex>
 
@@ -17,8 +12,8 @@ class Mutex : public node::ObjectWrap {
  public:
   static void Init(v8::Handle<v8::Object> exports);
 
- private:
-  explicit Mutex();
+ public:
+  explicit Mutex(bool);
   ~Mutex();
 
   static v8::Persistent<v8::Function> constructor;
@@ -26,36 +21,71 @@ class Mutex : public node::ObjectWrap {
   static void TryLock(const v8::FunctionCallbackInfo<v8::Value> &);
   static void Lock(const v8::FunctionCallbackInfo<v8::Value> &);
   static void Unlock(const v8::FunctionCallbackInfo<v8::Value> &);
+  static void TryLockFor(const v8::FunctionCallbackInfo<v8::Value> &);
+  static void DoWithLock(const v8::FunctionCallbackInfo<v8::Value> &);
 
+  static Mutex * GetCorrectMutexType(bool, bool);
+
+  virtual void lock() = 0;
+  virtual bool tryLock() = 0;
+  virtual bool unlock() = 0;
+  virtual void tryLockFor(const v8::FunctionCallbackInfo<v8::Value> & args,
+                          v8::Isolate * isolate);
+  const bool isTimed;
+};
+
+class StandardMutex : public Mutex {
+ public:
+  explicit StandardMutex();
+  ~StandardMutex();
+
+  virtual void lock();
+  virtual bool tryLock();
+  virtual bool unlock();
+  bool isLocked;
   std::mutex mut;
 };
 
-class RecursiveMutex : public node::ObjectWrap {
+class RecursiveMutex : public Mutex {
  public:
-  static void Init(v8::Handle<v8::Object> exports);
-
- private:
-  explicit RecursiveMutex(double);
+  explicit RecursiveMutex();
   ~RecursiveMutex();
 
-  static void New(const v8::FunctionCallbackInfo<v8::Value> &);
-  static void PlusOne(const v8::FunctionCallbackInfo<v8::Value> &);
-  static v8::Persistent<v8::Function> constructor;
-  double value_;
+  virtual void lock();
+  virtual bool tryLock();
+  virtual bool unlock();
+  size_t numLocks;
+  std::recursive_mutex mut;
 };
 
-class TimeoutMutex : public node::ObjectWrap {
+class TimedMutex : public Mutex {
  public:
-  static void Init(v8::Handle<v8::Object> exports);
+  explicit TimedMutex();
+  ~TimedMutex();
 
- private:
-  explicit TimeoutMutex(double);
-  ~TimeoutMutex();
+  virtual void lock();
+  virtual bool tryLock();
+  virtual void tryLockFor(const v8::FunctionCallbackInfo<v8::Value> & args,
+                          v8::Isolate * isolate);
+  virtual bool tryLockFor(size_t);
+  virtual bool unlock();
+  bool isLocked;
+  std::timed_mutex mut;
+};
 
-  static void New(const v8::FunctionCallbackInfo<v8::Value> &);
-  static void PlusOne(const v8::FunctionCallbackInfo<v8::Value> &);
-  static v8::Persistent<v8::Function> constructor;
-  double value_;
+class RecursiveTimedMutex : public Mutex {
+ public:
+  explicit RecursiveTimedMutex();
+  ~RecursiveTimedMutex();
+
+  virtual void lock();
+  virtual bool tryLock();
+  virtual void tryLockFor(const v8::FunctionCallbackInfo<v8::Value> & args,
+                          v8::Isolate * isolate);
+  virtual bool tryLockFor(size_t);
+  virtual bool unlock();
+  size_t numLocks;
+  std::recursive_timed_mutex mut;
 };
 
 #endif

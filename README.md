@@ -22,7 +22,7 @@ The type of mutex is specified in a options object passed to the constructor, as
 In addition to these, there is a `doWithLock` operation that releases a lock when the function returns. Its use is described below:
 
 ```
-var result = lock.doWithLock(function(){
+var result = lock.doWithLock(true, function(){
   // do something
   return "result"; // return whatever
 });
@@ -44,7 +44,7 @@ If 'opts' is a javascript object, checks two properties: `recursive` and `timed`
 - `void lock(void)`
 
 
-Locks the mutex. Throws TypeError if already locked and mutex is not recursive. This blocks the calling thread synchronously until it is locked, so try to avoid deadlocks!
+Locks the mutex. Causes undefined behavior (usually everything just freezes) if this thread currently holds the lock, so be careful. This also blocks the calling thread synchronously until it is locked, so try to avoid deadlocks!
 
 
 - `void unlock(void)`
@@ -65,10 +65,10 @@ Attempts to lock the mutex. If succeeds, returns true. If fails (mutex is alread
 Only available for timed mutexes. Attempts to lock the mutex within the given time span. Returns true on success, false on timeout. Throws TypeError if already locked and mutex is not recursive, or if the mutex isn't a timed mutex. This blocks the calling thread synchronously until it locks or times out.
 
 
-- `object doWithLock((optional) lockItForMe, callbackToRun)`
+- `object doWithLock(lockItForMe, callbackToRun)`
 
 
-Runs callback **synchronously**, unlocking mutex when done and returning the result of the callback. If lockItForMe is provided and is `false`, it assumes the mutex is already locked. Otherwise, the mutex is locked for you. When using this function, make sure you don't accidentally lock the mutex before running this without setting lockitForMe to false, or forget to lock the mutex and set lockitForMe to false (although this will throw an exception, so it's not that bad), because you will experience errors, and errors are bad.
+Runs callback **synchronously**, unlocking mutex when done and returning the result of the callback. If lockItForMe is `false`, it assumes the mutex is already locked. Otherwise, the mutex is locked for you. When using this function, make sure you don't accidentally lock the mutex before running this without setting lockitForMe to false, or forget to lock the mutex and set lockitForMe to false (although this will throw an exception, so it's not that bad), because you will experience errors, and errors are bad.
 
 
 # HUH?

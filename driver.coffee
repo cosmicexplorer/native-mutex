@@ -1,22 +1,20 @@
-spawn = require('child_process').spawn
-
 NativeMutex = require './build/Release/native-mutex'
 
-lockObj = new NativeMutex.Mutex()
+lock = new NativeMutex.Mutex recursive: yes, timed: yes
 
 counter = 0
+lock.lock()
+++counter
+lock.unlock()
+console.log ++counter
 
-# without the locks, this is a race condition and should eventually fail
-doStuff = ->
-  succeeded = lockObj.tryLock()
-  while not succeeded
-    succeeded = lockObj.tryLock()
-  e = spawn('echo', [(++counter).toString()])
-  e.stdout.on 'data', (dat) ->
-    console.log counter
-    lockObj.unlock()
+a = lock.doWithLock true, ->
+  console.log "hey"
+  3
 
-# for some reason node doesn't like while(true)
-setInterval doStuff, 0
+console.log a
 
-setTimeout((-> process.exit()), 5000)
+# setInterval((->
+#   setTimeout((->
+#     process.exit() if counter > 1000
+#     console.log ++counter), 1)), 1)

@@ -20,7 +20,7 @@
     "safety"
   ],
   "devDependencies": {
-    "byline": "4.2.x",
+    "byline": "^4.2.1",
     "coffee-script": "1.9.x",
     "node-gyp": "2.0.x"
   }
