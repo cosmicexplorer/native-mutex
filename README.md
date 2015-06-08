@@ -44,7 +44,7 @@ If 'opts' is a javascript object, checks two properties: `recursive` and `timed`
 - `void lock(void)`
 
 
-Locks the mutex. Causes undefined behavior (usually everything just freezes) if this thread currently holds the lock, so be careful. This also blocks the calling thread synchronously until it is locked, so try to avoid deadlocks!
+Locks the mutex. Causes undefined behavior (usually everything just freezes) if this thread currently holds the lock (and it's not a recursive mutex), so be careful. This also blocks the calling thread synchronously until it is locked, so try to avoid deadlocks!
 
 
 - `void unlock(void)`

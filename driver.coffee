@@ -16,6 +16,23 @@ a = lock.doWithLock true, ->
 
 console.log a
 
+cv = new NativeMutex.ConditionVariable
+
+ready = no
+
+spawn = require('child_process').spawn
+proc = spawn 'curl', ['https://github.com']
+
+process.nextTick ->
+  proc.on 'exit', ->
+    ready = yes
+    console.error "!!!" if ready
+    cv.notifyOne()
+
+console.error "waiting"
+result = cv.wait -> ready
+console.error "waited"
+
 # setInterval((->
 #   setTimeout((->
 #     process.exit() if counter > 1000
