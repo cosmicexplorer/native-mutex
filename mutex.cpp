@@ -94,6 +94,7 @@ bool RecursiveTimedMutex::tryLock() {
 bool StandardMutex::unlock() {
   if (isLocked) {
     mut.unlock();
+    isLocked = false;
     return true;
   }
   return false;
@@ -109,6 +110,7 @@ bool RecursiveMutex::unlock() {
 bool TimedMutex::unlock() {
   if (isLocked) {
     mut.unlock();
+    isLocked = false;
     return true;
   }
   return false;
@@ -277,7 +279,12 @@ void Mutex::DoWithLock(const FunctionCallbackInfo<Value> & args) {
     Local<Value> argv[argc] = {};
     Local<Value> res =
      cb->Call(isolate->GetCurrentContext()->Global(), argc, argv);
-    obj->unlock();
+    bool already_locked(obj->unlock());
+    if (not already_locked) {
+      isolate->ThrowException(Exception::TypeError(String::NewFromUtf8(
+       isolate,
+       "You didn't acquire the lock before calling doWithLock(false, cb)!")));
+    }
     args.GetReturnValue().Set(res);
   }
 }

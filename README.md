@@ -17,7 +17,7 @@ lock.unlock(); // let others have fun
 
 # OPERATIONS
 
-The type of mutex is specified in a options object passed to the constructor, as detailed [below](#API). All mutexes support the `lock`, `tryLock`, and `unlock` operations, which work [just like C++](http://www.cplusplus.com/reference/mutex/mutex/). Recursive mutexes support recursive locking (incredible, right) and timeout mutexes support the `tryLockFor` function, which works as detailed [here](http://www.cplusplus.com/reference/mutex/timed_mutex/try_lock_for/), except you pass in a number of milliseconds instead of a C++ std::whatever. All the mutexes are destroyed on garbage collection.
+The type of mutex is specified in a options object passed to the constructor, as detailed [below](#API). All mutexes support the `lock`, `tryLock`, and `unlock` operations, which work [just](http://www.cplusplus.com/reference/mutex/mutex/lock/) [like](http://www.cplusplus.com/reference/mutex/mutex/try_lock/) [C++](http://www.cplusplus.com/reference/mutex/mutex/unlock). Recursive mutexes support recursive locking (incredible, right) and timeout mutexes support the `tryLockFor` function, which works as detailed [here](http://www.cplusplus.com/reference/mutex/timed_mutex/try_lock_for/), except you pass in a number of milliseconds instead of a C++ std::whatever. All the mutexes are destroyed on garbage collection.
 
 In addition to these, there is a `doWithLock` operation that releases a lock when the function returns. Its use is described below:
 
@@ -79,4 +79,4 @@ That's true, but sometimes explicit locking is unavoidable. Check out [the test 
 
 # THIS CODE LOOKS AWFUL
 
-True. Ideally there'd be a lot more inheritance to conform to principles of good software engineering. However, I'm not too familiar with v8 or its C++ API and it seemed easier to do it this way. If there are any bugs in the the approximately five lines of code in this repo, and you actually use this, definitely contact me.
+True. Ideally there'd be a lot more inheritance to conform to principles of good software engineering. However, I'm not too familiar with v8 or its C++ API and it seemed easier to do it this way. If there are any bugs in the approximately five lines of code in this repo, and you actually use this, definitely contact me.

@@ -9,7 +9,9 @@ lock.unlock()
 console.log ++counter
 
 a = lock.doWithLock true, ->
-  console.log "hey"
+  lock2 = new NativeMutex.Mutex
+  lock2.lock()
+  lock2.unlock()
   3
 
 console.log a
