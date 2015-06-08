@@ -93,26 +93,22 @@ void ConditionVariable::WaitFor(
   } else {
     std::unique_lock<std::mutex> u_lock(obj->mut);
     size_t timeout = args[0]->Uint32Value();
-    std::cv_status result;
-    bool res_boolean;
+    bool did_timeout;
     if (args.Length() == 1) {
-      result = obj->cv.wait_for(u_lock, std::chrono::milliseconds(timeout));
+      did_timeout =
+       std::cv_status::timeout ==
+       obj->cv.wait_for(u_lock, std::chrono::milliseconds(timeout));
     } else {
       const size_t argc = 0;
       Local<Value> argv[argc] = {};
       Local<Function> cb = Local<Function>::Cast(args[1]);
-      res_boolean =
+      did_timeout =
        obj->cv.wait_for(u_lock, std::chrono::milliseconds(timeout), [&]() {
          Local<Value> res =
           cb->Call(isolate->GetCurrentContext()->Global(), argc, argv);
          return not res->IsBoolean() or res->BooleanValue();
        });
-    }
-    bool did_timeout;
-    if (args.Length() == 1) {
-      did_timeout = std::cv_status::timeout == result;
-    } else {
-      did_timeout = res_boolean;
+      ;
     }
     args.GetReturnValue().Set(Boolean::New(isolate, did_timeout));
   }

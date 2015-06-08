@@ -23,14 +23,13 @@ ready = no
 spawn = require('child_process').spawn
 proc = spawn 'curl', ['https://github.com']
 
-process.nextTick ->
-  proc.on 'exit', ->
-    ready = yes
-    console.error "!!!" if ready
-    cv.notifyOne()
+proc.on 'exit', ->
+  ready = yes
+  console.error "!!!" if ready
+  cv.notifyOne()
 
 console.error "waiting"
-result = cv.wait -> ready
+result = cv.waitFor 5000, -> ready
 console.error "waited"
 
 # setInterval((->
