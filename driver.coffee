@@ -29,7 +29,9 @@ proc.on 'exit', ->
   cv.notifyOne()
 
 console.error "waiting"
-result = cv.waitFor 5000, -> ready
+result = cv.waitFor 50, -> ready
+while not result
+  result = cv.waitFor 50, -> ready
 console.error "waited"
 
 # setInterval((->

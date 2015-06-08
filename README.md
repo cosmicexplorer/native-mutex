@@ -3,6 +3,10 @@ native-mutex
 
 A node wrapper over C++11 mutexes.
 
+# ATTENTION
+
+I added some pretty dope condition variables to this as well, then realized that since the node runtime doesn't allow you to specify specifically when a new thread will be created, using raw condition variables will screw with and ultimately stop all processing unless you've already, through some magic, created multiple extra threads. So even though the concept 'works,' it would need much heavier v8 integration to become fully usable. With that in mind, this goes on the back burner for a while. Bye!
+
 # USAGE
 
 ```javascript
