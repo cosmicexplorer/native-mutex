@@ -5,7 +5,7 @@ A node wrapper over C++11 mutexes.
 
 # USAGE
 
-```
+```javascript
 var NativeMutex = require('native-mutex');
 
 var lock = new NativeMutex.Mutex();
@@ -21,7 +21,7 @@ The type of mutex is specified in a options object passed to the constructor, as
 
 In addition to these, there is a `doWithLock` operation that releases a lock when the function returns. Its use is described below:
 
-```
+```javascript
 var result = lock.doWithLock(true, function(){
   // do something
   return "result"; // return whatever
